@@ -1,0 +1,160 @@
+useful plugins
+
+vagrant plugin install vagrant-hostmanager
+vagrant plugin install vagrant-hosts
+vagrant plugin install vagrant-env
+
+========================================================================
+vagrant example links
+_____________________
+
+https://github.com/cloudnative-tech/kubeadm-vagrant/blob/main/Vagrantfile
+
+
+
+===========================================================================
+
+
+
+
+
+
+
+
+BOX_IMAGE    = "ubuntu/xenial64"
+MASTER_COUNT = 1
+NODE_COUNT   = 2
+MASTER_IP    = "192.168.26.10"
+MASTER_PORT  = "8443"
+NODE_IP_NW   = "192.168.26."
+POD_NW_CIDR  = "10.244.0.0/16"
+
+DOCKER_VER = "5:19.03.4~3-0~ubuntu-xenial"
+KUBE_VER   = "1.19.2"
+KUBE_TOKEN = "ayngk7.m1555duk5x2i3ctt"
+IMAGE_REPO = "k8s.gcr.io"
+
+def gen_haproxy_backend(master_count)
+  server=""
+  (1..master_count).each do |i|
+    ip = NODE_IP_NW + "#{i + 10}"
+    server << "    server apiserver#{i} #{ip}:6443 check\n"
+  end
+  server
+end
+
+init_script = <<SCRIPT
+#!/bin/bash
+set -eo pipefail
+SCRIPT
+
+
+  (1..MASTER_COUNT).each do |i|
+    ha = MASTER_COUNT > 1
+    hostname= "master#{ha ? i: ''}"
+    config.vm.define(hostname) do |subconfig|
+      subconfig.vm.hostname = hostname
+      subconfig.vm.network :private_network, nic_type: "virtio", ip: ha ? NODE_IP_NW + "#{i + 10}" : MASTER_IP
+      subconfig.vm.provider :virtualbox do |vb|
+        vb.customize ["modifyvm", :id, "--cpus", "2"]
+        vb.customize ["modifyvm", :id, "--memory", "2048"]
+      end
+      subconfig.vm.provision :shell, inline: ha ? ha_script : master_script
+    end
+  end
+
+  (1..NODE_COUNT).each do |i|
+    config.vm.define("node#{i}") do |subconfig|
+      subconfig.vm.hostname = "node#{i}"
+      subconfig.vm.network :private_network, nic_type: "virtio", ip: NODE_IP_NW + "#{i + 20}"
+      subconfig.vm.provision :shell, inline: node_script
+    end
+  end
+end
+
+
+
+Vagrant.configure("2") do |config|
+    config.vm.provision "shell", inline: <<-SHELL
+        apt-get update -y
+#        echo "10.0.0.10  lb" >> /etc/hosts
+
+        echo "10.0.0.11  master-01" >> /etc/hosts
+#        echo "10.0.0.12  master-02" >> /etc/hosts
+#        echo "10.0.0.13  master-03" >> /etc/hosts
+
+        echo "10.0.0.21  worker-01" >> /etc/hosts
+        echo "10.0.0.22  worker-02" >> /etc/hosts
+#        echo "10.0.0.23  worker-03" >> /etc/hosts
+#        echo "10.0.0.24  worker-04" >> /etc/hosts
+
+    SHELL
+
+# ##below is to create more than one master
+#   (1..3).each do |i|    
+#   config.vm.define "master0#{i}" do |master|
+#     #master.vm.box_download_insecure = true    
+#     master.vm.box = "bento/ubuntu-20.04"       
+#     master.vm.network "private_network", ip: "10.0.0.1#{i}"
+#     master.vm.hostname = "master-0#{i}"
+#     master.vm.provider "virtualbox" do |v|
+#       v.name = "master-0#{i}"
+#       v.memory = 2048
+#       v.cpus = 2
+#     end
+#     #   master.vm.provision "shell", path: "scripts/common.sh"
+#     #   master.vm.provision "shell", path: "scripts/node.sh"    
+#   end
+# end
+
+## below is to create one master
+    config.vm.define "master-01" do |master|
+      master.vm.box = "bento/ubuntu-20.04"
+      master.vm.hostname = "master-01"
+      master.vm.network "private_network", ip: "10.0.0.11"
+      master.vm.provider "virtualbox" do |v|
+          v.name = "master-01"
+          v.memory = 2048
+          v.cpus = 2
+      end
+      master.vm.provision "shell", path: "scripts/common.sh"
+     # master.vm.provision "shell", path: "scripts/master.sh"
+    end
+
+
+
+# ## below is to create more than one worker node
+#     (1..3).each do |i|
+  
+#     config.vm.define "node0#{i}" do |node|
+#       node.vm.box = "bento/ubuntu-20.04"
+#       node.vm.hostname = "worker-0#{i}"
+#       node.vm.network "private_network", ip: "10.0.0.2#{i}"
+#       node.vm.provider "virtualbox" do |v|
+#           v.name = "worker0#{i}"
+#           v.memory = 3000
+#           v.cpus = 1
+#       end
+#     #   node.vm.provision "shell", path: "scripts/common.sh"
+#     #   node.vm.provision "shell", path: "scripts/node.sh"
+#     end
+    
+#     end
+
+## below is to create one worker node
+
+  config.vm.define "worker-01" do |worker|
+  #   worker.vm.box_download_insecure = true 
+    worker.vm.box = "bento/ubuntu-20.04"        ## For ubuntu 18.04 use - hashicorp/bionic64
+    worker.vm.network "private_network", ip: "10.0.0.21"
+    worker.vm.hostname = "worker-01"
+    worker.vm.provider "virtualbox" do |v|
+      v.name = "worker-01"
+      v.memory = 1024
+      v.cpus = 1
+    end
+    #   node.vm.provision "shell", path: "scripts/common.sh"
+    #   node.vm.provision "shell", path: "scripts/node.sh"
+  end
+
+end
