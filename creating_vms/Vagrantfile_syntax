@@ -9,7 +9,10 @@ vagrant example links
 _____________________
 
 https://github.com/cloudnative-tech/kubeadm-vagrant/blob/main/Vagrantfile
-
+https://github.com/coolsvap/kubeadm-vagrant/blob/main/Vagrantfile
+https://serhanaya.github.io/posts/vagrant-multi-node-cluster-setup/
+https://www.thisprogrammingthing.com/2015/multiple-vagrant-vms-in-one-vagrantfile/
+https://medium.com/@raj10x/multi-node-kubernetes-cluster-with-vagrant-virtualbox-and-kubeadm-9d3eaac28b98
 
 
 ===========================================================================
