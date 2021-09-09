@@ -16,8 +16,31 @@ https://medium.com/@raj10x/multi-node-kubernetes-cluster-with-vagrant-virtualbox
 
 
 ===========================================================================
+ex1:
+#https://www.youtube.com/watch?v=SLOdZc2uolQ&t=350s
+
+ENV['VAGRANT_NO_PARALLER'] = 'yes'
+
+Vagrant.configure(2) do |config|
+  
+  NodeCount = 2
+
+  (1..NodeCount).each do |i|
+    config.vm.define "node0#{i}" do |node|
+      node.vm.box = "ubuntu/bionic64"
+      node.vm.hostname="node0#{i}.example.com"
+      node.vm.network "private_network", ip: "10.0.0.10#{i}"
+      node.vm.provider "virtualbox" do |v|
+        v.name = "node0#{i}"
+        v.memory = 2048
+        v.cpus = 1
+      end
+    end
+  end
+end
 
 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 
