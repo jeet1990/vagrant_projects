@@ -13,6 +13,9 @@ Vagrant.configure("2") do |config|
   end
 #-----------------------------------------------------
   config.vm.provision "shell", path: "scripts/common.sh"
+  config.vm.provision "shell", path: "scripts/common.sh", privileged: false       // will not use root user to to execute the vagrant provision
+
+  
   
 #-----------------------------------------------------
   
