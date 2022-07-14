@@ -14,6 +14,18 @@ Vagrant.configure("2") do |config|
 #-----------------------------------------------------shell--------------------
   config.vm.provision "shell", path: "scripts/common.sh"
   config.vm.provision "shell", path: "scripts/common.sh", privileged: false       // will not use root user to to execute the vagrant provision
+  
+  ##passing arguments to the script
+  #Note that the single quotes around first arg are only needed if you want to include spaces as part of the argument passed. That is, the code above is equivalent to typing the following in the terminal:
+  #$ bootstrap.sh 'first arg' second
+  #Where within the script $1 refers to the string "first arg" and $2 refers to the string "second".
+  config.vm.provision :shell, :path => "bootstrap.sh", :args => "'first arg' second"
+  
+  ##if you want to pass variables as arguments as above
+  var1= "192.168.50.4"
+  var2 = "my_server"
+  config.vm.provision :shell, :path => 'setup.sh', :args => [var1, var2]
+  #^ in the shell script; use #echo "### $1 - $2"
 
 #-----------------------------------------------------shell--------------------
   
@@ -22,5 +34,9 @@ Vagrant.configure("2") do |config|
      apt-get install -y apache2
    SHELL
 #-----------------------------------------------------
+
+
+
   
-end
+  
+  
