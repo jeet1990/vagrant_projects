@@ -1,0 +1,38 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/focal64"
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "private_network", ip: "x.x.x.x"
+  config.vm.hostname = "host_name of the vm"
+  config.vm.synced_folder ".", "/mnt/host_machine", create: true
+#commenting other below lines as i'm mainly concentrating on the above config
+#   config.vm.provider :virtualbox do |vb|
+#       vb.name = "jenkins"
+#       vb.memory = "2048"
+
+#   end
+#   config.vm.provision "shell" do |s|
+#     s.path = "provision.sh"
+#   end
+# end
+
+
+
+
+====================================================================>multi vm config
+Vagrant.configure("2") do |config|
+  config.vm.define "puppet" do |puppet|
+    puppet.vm.box = "bento/centos-7.2"
+    puppet.vm.network "private_network", ip: "192.168.10.21"
+   end
+  config.vm.define "puppetagent1" do |puppetagent1|
+    puppetagent1.vm.box = "bento/centos-7.2"
+    puppetagent1.vm.network "private_network", ip: "192.168.10.22"
+    puppetagent1.vm.hostname = "puppetagent1"
+  end
+    config.vm.define "puppetagent2" do |puppetagent2|
+      puppetagent2.vm.box = "bento/centos-7.2"
+      puppetagent2.vm.network "private_network", ip: "192.168.10.23"
+      puppetagent2.vm.hostname = "puppetagent2"
+  end
+end
+====================================================================>
