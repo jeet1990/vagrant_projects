@@ -1,43 +1,23 @@
-#!/bin/bash
-echo "Adding apt-keys"
-wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
-echo deb https://pkg.jenkins.io/debian binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list
+echo "===================> install jdk 11"
 
-echo "Updating apt-get"
-sudo apt-get -qq update && sudo apt-get -qq upgrade
+sudo apt install -y openjdk-11-jre;
 
-#jenkins requires Java 8 or 11
-echo "Installing default-java"
-sudo apt-get -y -q install openjdk-8-jre
+echo "===================> installed java version is "
 
-echo "Installing jenkins 2.222"
-wget -q "http://pkg.jenkins-ci.org/debian-stable/binary/jenkins_2.222.4_all.deb"  
-sudo apt-get -y install ./jenkins_2.222.4_all.deb
-rm -f ./jenkins_2.222.4_all.deb
+java -version;
 
-echo "Skipping the initial setup"
-echo 'JAVA_ARGS="-Djenkins.install.runSetupWizard=false"' >> /etc/default/jenkins
 
-echo "Setting up users"
-sudo rm -rf /var/lib/jenkins/init.groovy.d
-sudo mkdir /var/lib/jenkins/init.groovy.d
-sudo cp -v /vagrant/01_globalMatrixAuthorizationStrategy.groovy /var/lib/jenkins/init.groovy.d/
-sudo cp -v /vagrant/02_createAdminUser.groovy /var/lib/jenkins/init.groovy.d/
+echo "===================> installing jenkins"
 
-sudo service jenkins start
-sleep 1m
 
-echo "Installing jenkins plugins"
-JENKINSPWD=$(sudo cat /var/lib/jenkins/secrets/initialAdminPassword)
-rm -f jenkins_cli.jar.*
-wget -q http://localhost:8080/jnlpJars/jenkins-cli.jar
-while IFS= read -r line
-do
-  list=$list' '$line
-done < /vagrant/jenkins-plugins.txt
-java -jar ./jenkins-cli.jar -auth admin:$JENKINSPWD -s http://localhost:8080 install-plugin $list
+curl -fsSL https://pkg.jenkins.io/debian/jenkins.io.key | sudo tee \
+  /usr/share/keyrings/jenkins-keyring.asc > /dev/null;
 
-echo "Restarting Jenkins"
-sudo service jenkins restart
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+  https://pkg.jenkins.io/debian binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
 
-sleep 1m
+sudo apt-get update;
+sudo apt-get install jenkins -y;
+
+sudo systemctl status jenkins
