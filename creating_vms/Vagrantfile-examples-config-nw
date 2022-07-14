@@ -33,13 +33,13 @@ Vagrant.configure("2") do |config|
   
   
   
-  
-#commenting other below lines as i'm mainly concentrating on the above config
-#   config.vm.provider :virtualbox do |vb|
-#       vb.name = "jenkins"
-#       vb.memory = "2048"
-
-#   end
+   ==================================> provider related <==============================
+   config.vm.provider :virtualbox do |vb|
+       #//to define name of the vm
+       vb.name = "jenkins"          
+       #//to define memory of the vm
+       vb.memory = "2048"           
+   end
 #   config.vm.provision "shell" do |s|
 #     s.path = "provision.sh"
 #   end
