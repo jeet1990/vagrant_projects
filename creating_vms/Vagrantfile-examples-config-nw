@@ -1,11 +1,39 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/focal64"
+  #to disable auto box update
+  config.vm.box_check_update = false
+  
+  ==================================> network related <==============================
+  ===>port
+  #to allow port-forwarding to a specific port.
   config.vm.network "forwarded_port", guest: 80, host: 8080
+  #to allow port-forwarding to a specific port and only allow access via 127.0.0.1 to disable public access
+  config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+
+  ===>ip and network
+  #to create a public n/w
+  config.vm.network "public_network"
+  
+  #to create a private n/w 
+  config.vm.network "private_network"
+  #to create a private n/w with a specific ip
+  config.vm.network "private_network", ip: "192.168.33.10"
+  
   config.vm.network "private_network", ip: "x.x.x.x"
   config.vm.network "private_network", type: dhcp
   config.vm.network "private_network", bridged: "ensw01"           //ensw01 is the host interface name in the host machine
   config.vm.hostname = "host_name of the vm"
+  
+  
+  
+  
+  ==================================> storage related <==============================
   config.vm.synced_folder ".", "/mnt/host_machine", create: true
+  
+  
+  
+  
+  
 #commenting other below lines as i'm mainly concentrating on the above config
 #   config.vm.provider :virtualbox do |vb|
 #       vb.name = "jenkins"
