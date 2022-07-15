@@ -11,17 +11,22 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
 
   ===>ip and network
-  #to create a public n/w
+  =>#to create a public n/w
   config.vm.network "public_network"
+  config.vm.network "public_network", ip: "x.x.x.x"             // to assign a bridged ip 
   
-  #to create a private n/w 
+  =>#to create a private n/w 
   config.vm.network "private_network"
   #to create a private n/w with a specific ip
   config.vm.network "private_network", ip: "192.168.33.10"
-  
   config.vm.network "private_network", ip: "x.x.x.x"
   config.vm.network "private_network", type: dhcp
-  config.vm.network "private_network", bridged: "ensw01"           //ensw01 is the host interface name in the host machine
+  # binding private nw interface to bridged interface
+  config.vm.network "private_network", bridged: "ensw01"           //ensw01 is the host bridge interface name in the host machine
+  #V|   vmnet2 is host machine adapter; adapter: 2 is the interface id insdie the vm, ip is the host private nw interface range 
+  config.vm.network "private_network", ip: "192.168.200.50", name: 'vmnet2', adapter: 2      
+  
+  #to create a host name:
   config.vm.hostname = "host_name of the vm"
   
   
