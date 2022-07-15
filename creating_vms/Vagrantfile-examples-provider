@@ -1,0 +1,8 @@
+======================================>vmware_deskto<================================
+#to set global scope vm hostname within this file
+config.vm.hostname = "jenkins-master-test.novalocal"
+config.vm.provider "vmware_desktop" do |v|
+    #virtual machine name 
+    v.vmx['displayname'] = "infra-vagrant-jenkins"
+    v.memory = 4000
+    v.cpus = 4
